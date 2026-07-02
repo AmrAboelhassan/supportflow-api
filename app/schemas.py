@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Literal
 
+from pydantic import field_validator
 from sqlmodel import Field, SQLModel
 
 
@@ -19,6 +20,13 @@ class TicketCreate(SQLModel):
     message: str = Field(min_length=1)
     source: TicketSource = "form"
     customer_tier: CustomerTier = "standard"
+
+    @field_validator("customer_name", "subject", "message")
+    @classmethod
+    def text_fields_must_not_be_blank(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("must not be blank")
+        return value
 
 
 class TicketRead(SQLModel):
