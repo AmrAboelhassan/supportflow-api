@@ -57,6 +57,15 @@ def test_create_ticket_generates_triage_fields(client: TestClient) -> None:
     assert "next_action" in data
 
 
+def test_create_ticket_rejects_blank_text_fields(client: TestClient) -> None:
+    for field_name in ("customer_name", "subject", "message"):
+        response = client.post(
+            "/tickets",
+            json=_ticket_payload(**{field_name: "   "}),
+        )
+        assert response.status_code == 422
+
+
 def test_list_tickets_filters_and_search(client: TestClient) -> None:
     client.post("/tickets", json=_ticket_payload(customer_name="Ava Stone"))
     client.post(
